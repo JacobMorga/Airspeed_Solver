@@ -1,0 +1,44 @@
+# Example high-speed baseline for Airspeed_Solver.
+# Edit values by hand for part-selection studies. Not a validated airframe.
+#
+# Hard-to-know electrical parameters include typical min–max ballparks in comments.
+# Bracket those ranges if you have not purchased / measured the parts yet.
+
+control:
+  DC: 1.0                      # throttle 0–1; use 1.0 for theoretical top speed
+
+vehicle:
+  mass_kg: 0.85                # all-up mass [kg]; solver uses W = mass_kg * g
+  # typical small high-speed build: ~0.4–1.5 kg
+  CdA: 0.012                   # drag area [m^2]
+  # very streamlined: ~0.005–0.015; blunt / camera-heavy: ~0.02–0.05
+  N: 4                         # number of motors / props
+
+environment:
+  # rho: 1.225                   # air density [kg/m^3] (sea-level ISA)
+  # optional instead of rho:
+  p_Pa: 101325
+  T_K: 288.15
+  
+  mu: 1.8e-5                   # dynamic viscosity [Pa·s]
+
+motor:
+  Kv: 2300                     # velocity constant [RPM/V] — usually on the label
+  # high-speed small props often ~1800–3000+ on 6S
+  Rm: 0.05                     # winding resistance [ohm]
+  # typical small outrunner ballpark: ~0.02–0.15 ohm (lower for larger / lower-Kv)
+  I0: 0.8                      # no-load current [A]
+  # typical ballpark: ~0.3–2.0 A (rises with Kv and bearing/friction losses)
+
+battery:
+  Voc: 22.2                    # open-circuit pack voltage [V] (e.g. 6S ~3.7 V/cell)
+  # 4S ~14.8 V, 6S ~22.2 V, 8S ~29.6 V (nominal); use fully charged Voc if desired
+  Rbat: 0.02                   # pack internal resistance [ohm]
+  # typical 4–6S hobby pack IR ballpark: ~0.005–0.05 ohm (lower is better / higher C)
+  eta_bus: 0.97                # ESC + wiring efficiency [-]
+  # typical: 0.95–0.98
+  Ah_rating: 1.5               # optional; used only for C-rate post-check [Ah]
+
+propeller:
+  # Path relative to this YAML file. d, pitch, c_0.75r, CT/CP always come from JSON.
+  json: ../../prop_data/5x11E_analysed.json
