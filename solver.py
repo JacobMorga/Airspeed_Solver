@@ -23,6 +23,8 @@ from scipy.optimize import root
 
 from prop_model import PropModel, load_prop
 
+from datetime import datetime
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -91,6 +93,7 @@ def load_config(yaml_path: str | Path) -> Params:
     mass_kg = float(vehicle["mass_kg"])
     W = mass_kg * G
 
+    # Check on provided method of atmospheric conditions
     if "rho" in env and env["rho"] is not None:
         rho = float(env["rho"])
     elif "p_Pa" in env and "T_K" in env:
@@ -101,7 +104,7 @@ def load_config(yaml_path: str | Path) -> Params:
     T_K = float(env["T_K"]) if env.get("T_K") is not None else None
     mu = float(env.get("mu", 1.8e-5))
 
-    Kv = float(motor["Kv"])
+    Kv = float(motor["Kv"]) # RPM / Volt
     Kt = Ke = 60.0 / (2.0 * math.pi * Kv)
 
     prop_path = _resolve_prop_path(yaml_path, str(propeller["json"]))
@@ -301,11 +304,7 @@ def _derived(s: dict[str, float], p: Params) -> dict[str, Any]:
         "P_battery_W": P_battery,
         "P_useful_W": P_useful,
         "P_battery_from_chain_W": P_battery_from_chain,
-        "power_check_rel_err": (
-            abs(P_battery - P_battery_from_chain) / abs(P_battery)
-            if abs(P_battery) > 1e-16
-            else float("nan")
-        ),
+        "power_check_rel_err": ( abs(P_battery - P_battery_from_chain) / abs(P_battery) if abs(P_battery) > 1e-16 else float("nan") ),
         "v_mps": s["v"],
         "v_mph": s["v"] * MPS_TO_MPH,
         "n_rps": n,
@@ -434,7 +433,9 @@ def report(result: dict[str, Any], results_path: Path | None = None) -> str:
     print(text, end="")
 
     p: Params = result["params"]
-    out_path = results_path or default_results_path(p.yaml_path)
+    base_path = results_path or default_results_path(p.yaml_path)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_path = base_path.with_name(f"{base_path.stem}_{timestamp}{base_path.suffix}")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(text)
     print(f"Wrote results to {out_path}")
@@ -469,7 +470,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         result = solve_from_files(args.config)
-    except Exception as exc:  # noqa: BLE001 — CLI should show a clean error
+    except Exception as exc:  # BLE001 — CLI should show a clean error
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 
