@@ -10,17 +10,17 @@ control:
 vehicle:
   mass_kg: 0.85                # all-up mass [kg]; solver uses W = mass_kg * g
   # typical small high-speed build: ~0.4–1.5 kg
-  CdA: 0.01                    # drag area [m^2]
+  CdA: 0.006                    # drag area [m^2]
   # very streamlined: ~0.005–0.015; blunt / camera-heavy: ~0.02–0.05
   N: 4                         # number of motors / props
 
 environment:
   # rho: 1.225                   # air density [kg/m^3] (sea-level ISA)
   # optional instead of rho:
-  p_Pa: 101325
-  T_K: 203.15
+  p_Pa: 101592
+  T_K: 300.93
   
-  mu: 1.8e-5                   # dynamic viscosity [Pa·s]
+  mu: 1.85e-5                   # dynamic viscosity [Pa·s]
 
 motor:
   Kv: 700                     # velocity constant [RPM/V] — usually on the label
